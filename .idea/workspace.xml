@@ -2,11 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="19c06bce-db04-4a21-a90e-420c91ba463b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/GATTServer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/connect_core_ble_python.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/connect_core_ble_python.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/BLEInterface.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BLEService.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/exception.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GATTServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/GATTServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +36,28 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/venv/bin/python" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.BLEService">
+    <configuration name="BLEService" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="connect_core_ble_python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/BLEService.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="GATTServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="connect_core_ble_python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -58,6 +81,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.BLEService" />
         <item itemvalue="Python.GATTServer" />
       </list>
     </recent_temporary>
@@ -84,30 +108,55 @@
       <screen x="0" y="0" width="1920" height="1164" />
     </state>
     <state x="419" y="238" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583322401778" />
+    <state x="769" y="268" key="#com.intellij.ide.util.MemberChooser" timestamp="1584032784236">
+      <screen x="0" y="0" width="1920" height="1044" />
+    </state>
+    <state x="769" y="268" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1044@0.0.1920.1044" timestamp="1584032784236" />
+    <state x="769" y="299" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583757171316" />
     <state x="1021" y="391" key="FileChooserDialogImpl" timestamp="1583323968289">
       <screen x="0" y="0" width="1920" height="1164" />
     </state>
     <state x="1021" y="391" key="FileChooserDialogImpl/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583323968289" />
-    <state width="1897" height="315" key="GridCell.Tab.0.bottom" timestamp="1583488303454">
-      <screen x="0" y="0" width="1920" height="1164" />
+    <state width="1897" height="340" key="GridCell.Tab.0.bottom" timestamp="1584128511576">
+      <screen x="0" y="0" width="1920" height="1044" />
     </state>
+    <state width="1897" height="340" key="GridCell.Tab.0.bottom/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511576" />
     <state width="1897" height="315" key="GridCell.Tab.0.bottom/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583488303454" />
-    <state width="1897" height="315" key="GridCell.Tab.0.center" timestamp="1583488303454">
-      <screen x="0" y="0" width="1920" height="1164" />
+    <state width="1897" height="340" key="GridCell.Tab.0.center" timestamp="1584128511576">
+      <screen x="0" y="0" width="1920" height="1044" />
     </state>
+    <state width="1897" height="340" key="GridCell.Tab.0.center/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511576" />
     <state width="1897" height="315" key="GridCell.Tab.0.center/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583488303454" />
-    <state width="1897" height="315" key="GridCell.Tab.0.left" timestamp="1583488303454">
-      <screen x="0" y="0" width="1920" height="1164" />
+    <state width="1897" height="340" key="GridCell.Tab.0.left" timestamp="1584128511575">
+      <screen x="0" y="0" width="1920" height="1044" />
     </state>
+    <state width="1897" height="340" key="GridCell.Tab.0.left/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511575" />
     <state width="1897" height="315" key="GridCell.Tab.0.left/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583488303454" />
-    <state width="1897" height="315" key="GridCell.Tab.0.right" timestamp="1583488303454">
-      <screen x="0" y="0" width="1920" height="1164" />
+    <state width="1897" height="340" key="GridCell.Tab.0.right" timestamp="1584128511576">
+      <screen x="0" y="0" width="1920" height="1044" />
     </state>
+    <state width="1897" height="340" key="GridCell.Tab.0.right/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511576" />
     <state width="1897" height="315" key="GridCell.Tab.0.right/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583488303454" />
-    <state x="578" y="223" width="1052" height="733" key="SettingsEditor" timestamp="1583489024331">
+    <state width="1897" height="340" key="GridCell.Tab.1.bottom" timestamp="1584128511577">
+      <screen x="0" y="0" width="1920" height="1044" />
+    </state>
+    <state width="1897" height="340" key="GridCell.Tab.1.bottom/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511577" />
+    <state width="1897" height="340" key="GridCell.Tab.1.center" timestamp="1584128511576">
+      <screen x="0" y="0" width="1920" height="1044" />
+    </state>
+    <state width="1897" height="340" key="GridCell.Tab.1.center/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511576" />
+    <state width="1897" height="340" key="GridCell.Tab.1.left" timestamp="1584128511576">
+      <screen x="0" y="0" width="1920" height="1044" />
+    </state>
+    <state width="1897" height="340" key="GridCell.Tab.1.left/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511576" />
+    <state width="1897" height="340" key="GridCell.Tab.1.right" timestamp="1584128511577">
+      <screen x="0" y="0" width="1920" height="1044" />
+    </state>
+    <state width="1897" height="340" key="GridCell.Tab.1.right/0.0.1920.1044@0.0.1920.1044" timestamp="1584128511577" />
+    <state x="578" y="223" width="1052" height="733" key="SettingsEditor" timestamp="1583492353275">
       <screen x="0" y="0" width="1920" height="1164" />
     </state>
-    <state x="578" y="223" width="1052" height="733" key="SettingsEditor/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583489024331" />
+    <state x="578" y="223" width="1052" height="733" key="SettingsEditor/0.0.1920.1164/1920.0.1920.1080@0.0.1920.1164" timestamp="1583492353275" />
     <state x="639" y="409" key="com.intellij.ide.util.TipDialog" timestamp="1583310206724">
       <screen x="0" y="0" width="1920" height="1164" />
     </state>

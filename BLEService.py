@@ -1,0 +1,204 @@
+# Abstract base classes module
+from abc import ABC, abstractmethod
+
+# GATT server modules
+import GATTServer
+
+# XBee modules
+from digi.xbee.devices import XBeeDevice
+from digi.xbee.exception import XBeeException
+
+# ConnectCore BLE modules
+from BLEInterface import BLEInterface
+from exception import ConnectCoreBLEException
+from exception import BluetoothNotSupportedException
+
+XBEE_PORT_BAUDRATES = [9600, 115200, 1200, 2400, 4800, 19200, 38400, 57600]
+
+
+class BLEService(ABC):
+    __BLE_service_instance = None
+
+    def __init__(self, BLE_interface):
+        self.__BLE_interface = BLE_interface
+        self.__connection_status = None
+
+    @classmethod
+    def get_instance(cls):
+        """
+        Checks the available Bluetooth interfaces of the device and generates a single instance of the class. If an
+        instance does already exist, the method simply returns that instance.
+
+        If Bluetooth is natively supported, the instantiated class is ``BLEServiceNative``.
+
+        If the device does not support Bluetooth, but is connected to an XBee 3 that does support the protocol, the
+        instantiated class is ``BLEServiceXBee``.
+
+        Returns:
+            BLEService: the single instance generated from the method.
+
+        Raises:
+            BluetoothNotSupportedException: if the method does not find any valid Bluetooth interface.
+        """
+        if cls.__BLE_service_instance is None:
+
+            # Check for the native Bluetooth interface
+            if GATTServer.is_bluetooth_available():
+                cls.__BLE_service_instance = BLEServiceNative()
+
+            # Check for the XBee Bluetooth interface
+            else:
+                for baud_rate in XBEE_PORT_BAUDRATES:
+                    try:
+                        test_xbee_device = XBeeDevice('/dev/ttyXBee', baud_rate)
+                        test_xbee_device.open()
+                        test_xbee_device.enable_bluetooth()
+
+                        cls.__BLE_service_instance = BLEServiceXBee(baud_rate)
+                        break
+                    except XBeeException:
+                        pass
+
+            # If no available interface is found
+            if cls.__BLE_service_instance is None:
+                raise BluetoothNotSupportedException()
+
+        return cls.__BLE_service_instance
+
+    @abstractmethod
+    def start_service(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def stop_service(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def send_data(self, data):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def add_data_received_callback(self, callback):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def del_data_received_callback(self, callback):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def configure_advertising_name(self, device_name):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def add_connect_callback(self, callback):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def del_connect_callback(self, callback):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def add_disconnect_callback(self, callback):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def del_disconnect_callback(self, callback):
+        raise NotImplementedError()
+
+    def check_connection_status(self):
+        return self.__connection_status
+
+    def __default_connection_status_callback(self, status):
+        pass
+
+    def get_type(self):
+        return self.__BLE_interface
+
+
+class BLEServiceNative(BLEService):
+    def __init__(self):
+        BLEService.__init__(self, BLEInterface.NATIVE_INTERFACE)
+
+        self.GATT_server = GATTServer.GATTServer()
+
+    def start_service(self):
+        self.GATT_server.start()
+
+    def stop_service(self):
+        self.GATT_server.stop()
+
+    def send_data(self, data):
+        pass
+
+    def add_data_received_callback(self, callback):
+        pass
+
+    def del_data_received_callback(self, callback):
+        pass
+
+    def configure_advertising_name(self, device_name):
+        self.GATT_server.configure_advertising_name(device_name)
+
+    def add_connect_callback(self, callback):
+        pass
+
+    def del_connect_callback(self, callback):
+        pass
+
+    def add_disconnect_callback(self, callback):
+        pass
+
+    def del_disconnect_callback(self, callback):
+        pass
+
+
+class BLEServiceXBee(BLEService):
+    def __init__(self, baud_rate):
+        BLEService.__init__(self, BLEInterface.XBEE_INTERFACE)
+
+        self.xbee = XBeeDevice('/dev/ttyXBee', baud_rate)
+        self.xbee.open()
+
+    def start_service(self):
+        try:
+            self.xbee.enable_bluetooth()
+        except XBeeException:
+            raise
+
+    def stop_service(self):
+        try:
+            self.xbee.disable_bluetooth()
+        except XBeeException:
+            raise
+
+    def send_data(self, data):
+        pass
+
+    def add_data_received_callback(self, callback):
+        pass
+
+    def del_data_received_callback(self, callback):
+        pass
+
+    def configure_advertising_name(self, device_name):
+        self.xbee.set_parameter("BI", bytearray(device_name, "utf-8"))
+        self.xbee.apply_changes()
+
+    def add_connect_callback(self, callback):
+        pass
+
+    def del_connect_callback(self, callback):
+        pass
+
+    def add_disconnect_callback(self, callback):
+        pass
+
+    def del_disconnect_callback(self, callback):
+        pass
+
+
+if __name__ == '__main__':
+    bleservice = BLEService.get_instance()
+    bleservice.start_service()
+
+

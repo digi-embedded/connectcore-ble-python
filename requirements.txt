@@ -1,2 +1,4 @@
 bluezero
 dbus-python
+digi-xbee
+
