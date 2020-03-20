@@ -7,6 +7,7 @@ import GATTServer
 # XBee modules
 from digi.xbee.devices import XBeeDevice
 from digi.xbee.exception import XBeeException
+from digi.xbee.models.status import ModemStatus
 
 # ConnectCore BLE modules
 from BLEInterface import BLEInterface
@@ -17,11 +18,17 @@ XBEE_PORT_BAUDRATES = [9600, 115200, 1200, 2400, 4800, 19200, 38400, 57600]
 
 
 class BLEService(ABC):
+    """
+        This class offers several methods that can be used to communicate a ConnectCore 6UL working as a Peripheral
+        device with an external Central device via Bluetooth Low Energy.
+    """
     __BLE_service_instance = None
 
     def __init__(self, BLE_interface):
-        self.__BLE_interface = BLE_interface
-        self.__connection_status = None
+        self._BLE_interface = BLE_interface
+
+        self._on_connect = []
+        self._on_disconnect = []
 
     @classmethod
     def get_instance(cls):
@@ -90,36 +97,41 @@ class BLEService(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def add_connect_callback(self, callback):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def del_connect_callback(self, callback):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def add_disconnect_callback(self, callback):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def del_disconnect_callback(self, callback):
-        raise NotImplementedError()
-
-    def check_connection_status(self):
-        return self.__connection_status
-
-    def __default_connection_status_callback(self, status):
+    def is_connected(self):
         pass
 
+    @abstractmethod
+    def _execute_user_connection_callbacks(self, status):
+        raise NotImplementedError()
+
+    def add_connect_callback(self, callback):
+        self._on_connect.append(callback)
+
+    def del_connect_callback(self, callback):
+        if callback in self._on_connect:
+            self._on_connect.remove(callback)
+
+    def add_disconnect_callback(self, callback):
+        self._on_disconnect.append(callback)
+
+    def del_disconnect_callback(self, callback):
+        if callback in self._on_disconnect:
+            self._on_disconnect.remove(callback)
+
     def get_type(self):
-        return self.__BLE_interface
+        return self._BLE_interface
 
 
 class BLEServiceNative(BLEService):
+    """
+    This class implements the abstract methods of ``BLEService`` by creating a GATT server
+    and making use of its services.
+    """
     def __init__(self):
         BLEService.__init__(self, BLEInterface.NATIVE_INTERFACE)
 
         self.GATT_server = GATTServer.GATTServer()
+        self.GATT_server.set_connection_changed_callback(self._execute_user_connection_callbacks)
 
     def start_service(self):
         self.GATT_server.start()
@@ -139,25 +151,39 @@ class BLEServiceNative(BLEService):
     def configure_advertising_name(self, device_name):
         self.GATT_server.configure_advertising_name(device_name)
 
-    def add_connect_callback(self, callback):
-        pass
+    def is_connected(self):
+        if self.GATT_server.get_connection_status() == GATTServer.GATTConnectionStatus.CONNECTED:
+            return True
+        elif self.GATT_server.get_connection_status() == GATTServer.GATTConnectionStatus.DISCONNECTED:
+            return False
 
-    def del_connect_callback(self, callback):
-        pass
+    def _execute_user_connection_callbacks(self, status):
+        if status == GATTServer.GATTConnectionStatus.CONNECTED:
+            for callback in self._on_connect:
+                callback()
 
-    def add_disconnect_callback(self, callback):
-        pass
-
-    def del_disconnect_callback(self, callback):
-        pass
+        elif status == GATTServer.GATTConnectionStatus.DISCONNECTED:
+            for callback in self._on_disconnect:
+                callback()
 
 
 class BLEServiceXBee(BLEService):
+    """
+        This class implements the abstract methods of ``BLEService`` by establishing connection with an
+        XBee device and communicating with its GATT server.
+    """
     def __init__(self, baud_rate):
         BLEService.__init__(self, BLEInterface.XBEE_INTERFACE)
 
+        # Open communication with the XBee device
         self.xbee = XBeeDevice('/dev/ttyXBee', baud_rate)
         self.xbee.open()
+
+        # Subscribe to connection event and store connection information
+        self._connected = False
+        self.xbee.add_modem_status_received_callback(self._execute_user_connection_callbacks)
+        self.add_connect_callback(lambda: setattr(self, "_connected", True))
+        self.add_disconnect_callback(lambda: setattr(self, "_connected", False))
 
     def start_service(self):
         try:
@@ -184,21 +210,31 @@ class BLEServiceXBee(BLEService):
         self.xbee.set_parameter("BI", bytearray(device_name, "utf-8"))
         self.xbee.apply_changes()
 
-    def add_connect_callback(self, callback):
-        pass
+    def is_connected(self):
+        print(self._connected)
+        return self._connected
 
-    def del_connect_callback(self, callback):
-        pass
-
-    def add_disconnect_callback(self, callback):
-        pass
-
-    def del_disconnect_callback(self, callback):
-        pass
+    def _execute_user_connection_callbacks(self, status):
+        if status == ModemStatus.BLUETOOTH_CONNECTED:
+            for callback in self._on_connect:
+                callback()
+        elif status == ModemStatus.BLUETOOTH_DISCONNECTED:
+            for callback in self._on_disconnect:
+                callback()
 
 
 if __name__ == '__main__':
     bleservice = BLEService.get_instance()
+
+    def connect_callback():
+        print("Connected")
+
+    def disconnect_callback():
+        print("Disconnected")
+
+    bleservice.add_connect_callback(connect_callback)
+    bleservice.add_disconnect_callback(disconnect_callback)
+
     bleservice.start_service()
 
 
