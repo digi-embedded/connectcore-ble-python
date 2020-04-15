@@ -12,7 +12,10 @@ from bluezero import GATT
 # D-Bus module
 import dbus
 
+# Standard modules
+import re
 import threading
+import time
 
 import utils
 
@@ -77,7 +80,7 @@ def is_bluetooth_available():
 @unique
 class GATTConnectionStatus(Enum):
     """
-    Enumerates the possible connection statuses of the GATT server as detected by the DBus
+    Enumerates the possible connection statuses of the GATT server as detected by the DBus.
     """
     DISCONNECTED = (0, "The GATT server is NOT connected to any other device")
     CONNECTED = (1, "The GATT server is connected to another device")
@@ -169,10 +172,10 @@ class RxCharacteristic(localGATT.Characteristic):
 
     def update_characteristic(self, data):
         """
-        Updates the rx characteristic and notifies the changes if notifications are enabled
+        Updates the rx characteristic and notifies the changes if notifications are enabled.
 
         Args:
-            data (Bytearray): new rx data
+            data (Bytearray): new rx data.
         """
         value = encode_bytes(data)
 
@@ -223,14 +226,19 @@ class GATTServer:
         # Define service starting thread
         self.service_thread = threading.Thread(target=self.app.start)
 
+        # Dictionary of devices subscribed by the DBus, associated with the signal they are subscribed to
+        self._dbus_subscribed_devices = {}
+
         # Get DBus object manager and start listening for new interfaces
         bluez_proxy = self.bus.get_object('org.bluez', "/")
         self.object_manager = dbus.Interface(bluez_proxy, "org.freedesktop.DBus.ObjectManager")
-        self.object_manager.connect_to_signal("InterfacesAdded", self._subscribe_dbus_managed_objects)
+        self.object_manager.connect_to_signal("InterfacesAdded", self._subscribe_dbus_managed_device)
+        self.object_manager.connect_to_signal("InterfacesRemoved", self._unsubscribe_dbus_managed_device)
 
-        # Every object managed by the DBus will listen for the PropertiesChanged signal
+        # Every device managed by the DBus will listen for the PropertiesChanged signal
         self._subscribe_dbus_managed_objects()
 
+        # Connection callback definition
         self._on_connection_changed = None
 
     def start(self):
@@ -318,7 +326,7 @@ class GATTServer:
 
         return GATTConnectionStatus.DISCONNECTED
 
-    def set_connection_changed_callback(self, callback):
+    def add_connection_changed_callback(self, callback):
         """
         Sets new callback to be called after the connection status changes.
 
@@ -327,25 +335,78 @@ class GATTServer:
         """
         self._on_connection_changed = callback
 
-    def _subscribe_dbus_managed_objects(self, path=None, interfaces_and_properties=None):
+    def del_connection_changed_callback(self, callback):
         """
-        Subscribes every object managed by the DBus object to the PropertiesChanged signal.
-
-        This method can be triggered in response to a DBus InterfacesAdded signal, so it follows the signature
-        described by the signal.
+        Removes callback to be called after the connection status changes.
 
         Args:
-            path (OBJPATH)
-            interfaces_and_properties (DICT<STRING, DICT<STRING, VARIANT>>)
+            callback (Function): the callback. Receives a ``GATTConnectionStatus`` element.
+        """
+        if self._on_connection_changed == callback:
+            self._on_connection_changed = None
+
+    def _subscribe_dbus_managed_objects(self):
+        """
+        Subscribes every device managed by the DBus object to the PropertiesChanged signal.
         """
         objects = self.object_manager.GetManagedObjects()
 
         for obj_path in objects:
-            obj_proxy = self.bus.get_object('org.bluez', obj_path)
-            prop = dbus.Interface(obj_proxy, "org.freedesktop.DBus.Properties")
-            prop.connect_to_signal("PropertiesChanged", self._dbus_connected_changed_callback)
+            if obj_path not in self._dbus_subscribed_devices:
+                for interface in objects[obj_path]:
+                    if interface == 'org.bluez.Device1':
+                        obj_proxy = self.bus.get_object('org.bluez', obj_path)
+                        prop = dbus.Interface(obj_proxy, "org.freedesktop.DBus.Properties")
+                        self._dbus_subscribed_devices[obj_path] = \
+                            prop.connect_to_signal("PropertiesChanged", self._dbus_connected_changed_callback)
 
-    def _dbus_connected_changed_callback(self, interface, changed, invalidated):
+    def _subscribe_dbus_managed_device(self, path=None, interfaces_and_properties=None):
+        """
+        Subscribes the added device with object path "path" to the PropertiesChanged signal.
+
+        This method can be triggered in response to a DBus InterfacesAdded signal, so it follows the signature
+        described by the signal.
+
+        See https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties
+
+        Args:
+            path (OBJPATH).
+            interfaces_and_properties (DICT<STRING, DICT<STRING, VARIANT>>).
+        """
+        for interface in interfaces_and_properties:
+            if interface == 'org.bluez.Device1':
+                if path not in self._dbus_subscribed_devices:
+                    obj_proxy = self.bus.get_object('org.bluez', path)
+                    prop = dbus.Interface(obj_proxy, "org.freedesktop.DBus.Properties")
+                    self._dbus_subscribed_devices[path] = \
+                        prop.connect_to_signal("PropertiesChanged", self._dbus_connected_changed_callback)
+
+                    # To assure that the connection methods are executed even if the interface gets added after
+                    # 'Connected' is changed, skipping the signal
+                    connected = prop.Get('org.bluez.Device1', 'Connected')
+                    if connected:
+                        self._dbus_connected_changed_callback('org.bluez.Device1', {'Connected': connected})
+
+    def _unsubscribe_dbus_managed_device(self, path=None, interfaces=None):
+        """
+        Unsubscribes the removed device with object path "path" from the PropertiesChanged signal.
+
+        This method can be triggered in response to a DBus InterfacesRemoved signal, so it follows the signature
+        described by the signal.
+
+        See https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties
+
+        Args:
+            path (OBJPATH).
+            interfaces (DICT<STRING, DICT<STRING, VARIANT>>).
+        """
+        for interface in interfaces:
+            if interface == 'org.bluez.Device1':
+                if path in self._dbus_subscribed_devices:
+                    self._dbus_subscribed_devices[path].remove()
+                    self._dbus_subscribed_devices.pop(path)
+
+    def _dbus_connected_changed_callback(self, interface, changed, invalidated=None):
         """
         Callback function to be called when a DBus PropertiesChanged signal is recieved. Checks if the ``Connected``
         property has changed, and calls the corresponding method if that is the case.
@@ -353,15 +414,19 @@ class GATTServer:
         This method can be triggered in response to a DBus PropertiesChanged signal, so it follows the signature
         described by the signal.
 
+        See https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties
+
         Note: the PropertiesChanged signal on the Connected property only triggers correctly with bonded devices.
 
         Args:
-            interface (STRING)
-            changed (DICT<STRING, VARIANT>)
-            invalidated (ARRAY<STRING>)
+            interface (STRING).
+            changed (DICT<STRING, VARIANT>).
+            invalidated (ARRAY<STRING>).
         """
         if 'Connected' in changed:
             if changed['Connected']:
-                self._on_connection_changed(GATTConnectionStatus.CONNECTED)
+                if self._on_connection_changed:
+                    self._on_connection_changed(GATTConnectionStatus.CONNECTED)
             else:
-                self._on_connection_changed(GATTConnectionStatus.DISCONNECTED)
+                if self._on_connection_changed:
+                    self._on_connection_changed(GATTConnectionStatus.DISCONNECTED)
