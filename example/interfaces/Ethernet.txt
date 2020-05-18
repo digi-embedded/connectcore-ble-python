@@ -1,0 +1,8 @@
+Type=Static
+IP Address=192.168.10.10
+Subnet Mask=255.255.255.0
+Default Gateway=192.168.10.1
+DNS Server 1=8.8.8.8
+DNS Server 2=8.8.4.4
+MAC Address=aa:aa:aa:aa:aa:aa
+Enabled=True
