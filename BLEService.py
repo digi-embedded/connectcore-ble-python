@@ -14,10 +14,9 @@ from digi.xbee.models.mode import OperatingMode
 from digi.xbee.models.options import XBeeLocalInterface
 from digi.xbee.models.status import ModemStatus
 from digi.xbee.packets.base import UnknownXBeePacket
-from digi.xbee.packets.relay import UserDataRelayPacket
+from digi.xbee.packets.relay import UserDataRelayPacket, UserDataRelayOutputPacket
 
 # ConnectCore BLE modules
-from BLEInterface import BLEInterface
 from exception import ConnectCoreBLEException
 from exception import BluetoothNotSupportedException
 
@@ -27,8 +26,6 @@ from BLE_security_manager import BLESecurityManager
 # Standard modules
 import traceback
 import threading
-
-import utils
 
 
 XBEE_PORT_BAUDRATES = [9600, 115200, 1200, 2400, 4800, 19200, 38400, 57600]
@@ -42,13 +39,14 @@ class BLEService(ABC):
     """
     __BLE_service_instance = None
 
-    def __init__(self, BLE_interface):
-        self._BLE_interface = BLE_interface
+    def __init__(self):
 
-        # Various function arrays
+        # Various function arrays.
         self._on_connect = []
         self._on_disconnect = []
         self._on_data_received = []
+
+        self.service_active = False
 
     @classmethod
     def get_instance(cls):
@@ -69,11 +67,11 @@ class BLEService(ABC):
         """
         if cls.__BLE_service_instance is None:
 
-            # Check for the native Bluetooth interface
+            # Check for the native Bluetooth interface.
             if GATTServer.is_bluetooth_available():
                 cls.__BLE_service_instance = BLEServiceNative()
 
-            # Check for the XBee Bluetooth interface
+            # Check for the XBee Bluetooth interface.
             else:
                 for baud_rate in XBEE_PORT_BAUDRATES:
                     try:
@@ -90,7 +88,7 @@ class BLEService(ABC):
                     except XBeeException:
                         pass
 
-            # If no available interface is found
+            # If no available interface is found.
             if cls.__BLE_service_instance is None:
                 raise BluetoothNotSupportedException()
 
@@ -217,8 +215,25 @@ class BLEService(ABC):
         if callback in self._on_disconnect:
             self._on_disconnect.remove(callback)
 
+    @abstractmethod
+    def set_password(self, new_password):
+        """
+        Sets the new authentication password for the service.
+
+        Args:
+            new_password (String): the new authentication password.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def get_type(self):
-        return self._BLE_interface
+        """
+        Returns a string that indicates the type of the object in a human-friendly way.
+
+        Returns:
+            A string indicating the interface.
+        """
+        raise NotImplementedError()
 
 
 class BLEServiceNative(BLEService):
@@ -228,15 +243,15 @@ class BLEServiceNative(BLEService):
     """
 
     def __init__(self):
-        BLEService.__init__(self, BLEInterface.NATIVE_INTERFACE)
+        BLEService.__init__(self)
 
-        self.GATT_server = GATTServer.GATTServer()
+        self._GATT_server = GATTServer.GATTServer()
 
-        # Set callback functions
-        self.GATT_server.add_tx_data_callback(self._execute_user_data_received_callbacks)
-        self.GATT_server.add_connection_changed_callback(self._execute_user_connection_callbacks)
+        # Set callback functions.
+        self._GATT_server.add_tx_data_callback(self._execute_user_data_received_callbacks)
+        self._GATT_server.add_connection_changed_callback(self._execute_user_connection_callbacks)
 
-        BLESecurityManager.generate_salted_verification_key()
+        BLESecurityManager.generate_salted_verification_key('1234')
 
     def start_service(self):
         """
@@ -245,7 +260,8 @@ class BLEServiceNative(BLEService):
         See Also:
             :meth:`.BLEService.start_service`
         """
-        self.GATT_server.start()
+        self.service_active = True
+        self._GATT_server.start()
 
     def stop_service(self):
         """
@@ -254,7 +270,8 @@ class BLEServiceNative(BLEService):
         See Also:
             :meth:`.BLEService.stop_service`
         """
-        self.GATT_server.stop()
+        self.service_active = False
+        self._GATT_server.stop()
 
     def send_data(self, data):
         """
@@ -269,16 +286,16 @@ class BLEServiceNative(BLEService):
             sent_data = packet.output()
 
         else:
-            packet = UserDataRelayPacket(0x00, XBeeLocalInterface.BLUETOOTH, data)
+            packet = UserDataRelayOutputPacket(XBeeLocalInterface.BLUETOOTH, data)
             sent_data = packet.output()
 
-            # Encrypt the data if possible
+            # Encrypt the data if possible.
             try:
                 sent_data = BLESecurityManager.encrypt_data(sent_data)
             except ConnectCoreBLEException:
                 raise
 
-        self.GATT_server.send_rx_data(sent_data)
+        self._GATT_server.send_rx_data(sent_data)
 
     def _execute_user_data_received_callbacks(self, data):
         """
@@ -294,10 +311,14 @@ class BLEServiceNative(BLEService):
             return
 
         try:
-            # Decrypt the data if possible
+            # Decrypt the data if possible.
             decrypted_data = BLESecurityManager.decrypt_data(data)
 
-            # Create User Data Relay Packet from the raw data received
+            # Ignore if it is an AT Command.
+            if len(decrypted_data) > 3 and decrypted_data[3] == 0x08:
+                return
+
+            # Create User Data Relay Packet from the raw data received.
             packet = UserDataRelayPacket.create_packet(decrypted_data, OperatingMode.API_MODE)
             payload = packet.data
 
@@ -306,8 +327,6 @@ class BLEServiceNative(BLEService):
         except ConnectCoreBLEException:
             raise
         except InvalidPacketException:
-            traceback.print_exc()
-            self.stop_service()
             raise
 
     def configure_advertising_name(self, device_name):
@@ -317,7 +336,7 @@ class BLEServiceNative(BLEService):
         See Also:
             :meth:`.BLEService.configure_advertising_name`
         """
-        self.GATT_server.configure_advertising_name(device_name)
+        self._GATT_server.configure_advertising_name(device_name)
 
     def is_connected(self):
         """
@@ -326,9 +345,9 @@ class BLEServiceNative(BLEService):
         See Also:
             :meth:`.BLEService.is_connected`
         """
-        if self.GATT_server.get_connection_status() == GATTServer.GATTConnectionStatus.CONNECTED:
+        if self._GATT_server.get_connection_status() == GATTServer.GATTConnectionStatus.CONNECTED:
             return True
-        elif self.GATT_server.get_connection_status() == GATTServer.GATTConnectionStatus.DISCONNECTED:
+        elif self._GATT_server.get_connection_status() == GATTServer.GATTConnectionStatus.DISCONNECTED:
             return False
 
     def _execute_user_connection_callbacks(self, status):
@@ -346,6 +365,24 @@ class BLEServiceNative(BLEService):
             for callback in self._on_disconnect:
                 callback()
 
+    def set_password(self, new_password):
+        """
+        Override.
+
+        See Also:
+            :meth:`.BLEService.set_password`
+        """
+        BLESecurityManager.generate_salted_verification_key(new_password)
+
+    def get_type(self):
+        """
+        Override.
+
+        See Also:
+            :meth:`.BLEService.get_type`
+        """
+        return 'Native Interface'
+
 
 class BLEServiceXBee(BLEService):
     """
@@ -354,19 +391,19 @@ class BLEServiceXBee(BLEService):
     """
 
     def __init__(self, open_xbee):
-        BLEService.__init__(self, BLEInterface.XBEE_INTERFACE)
+        BLEService.__init__(self)
 
-        self.stop_service_event = threading.Event()
+        self._stop_service_event = threading.Event()
 
-        # Open communication with the XBee device
-        self.xbee = open_xbee
+        # Open communication with the XBee device.
+        self._xbee = open_xbee
 
-        # Set data received callback
-        self.xbee.add_bluetooth_data_received_callback(self._execute_user_data_received_callbacks)
+        # Set data received callback.
+        self._xbee.add_bluetooth_data_received_callback(self._execute_user_data_received_callbacks)
 
-        # Subscribe to connection event and store connection information
+        # Subscribe to connection event and store connection information.
         self._connected = False
-        self.xbee.add_modem_status_received_callback(self._execute_user_connection_callbacks)
+        self._xbee.add_modem_status_received_callback(self._execute_user_connection_callbacks)
 
     def start_service(self):
         """
@@ -376,10 +413,11 @@ class BLEServiceXBee(BLEService):
             :meth:`.BLEService.start_service`
         """
         try:
-            self.xbee.enable_bluetooth()
+            self.service_active = True
+            self._xbee.enable_bluetooth()
 
-            # Wait for new connections
-            wait_thread = threading.Thread(target=self.stop_service_event.wait)
+            # Wait for new connections.
+            wait_thread = threading.Thread(target=self._stop_service_event.wait)
             wait_thread.start()
         except XBeeException:
             raise
@@ -392,10 +430,11 @@ class BLEServiceXBee(BLEService):
             :meth:`.BLEService.stop_service`
         """
         try:
-            self.xbee.disable_bluetooth()
+            self.service_active = False
+            self._xbee.disable_bluetooth()
 
-            # Release wait thread
-            self.stop_service_event.set()
+            # Release wait thread.
+            self._stop_service_event.set()
         except XBeeException:
             raise
 
@@ -406,7 +445,7 @@ class BLEServiceXBee(BLEService):
         See Also:
             :meth:`.BLEService.send_data`
         """
-        self.xbee.send_bluetooth_data(data)
+        self._xbee.send_bluetooth_data(data)
 
     def _execute_user_data_received_callbacks(self, data):
         """
@@ -425,8 +464,11 @@ class BLEServiceXBee(BLEService):
         See Also:
             :meth:`.BLEService.configure_advertising_name`
         """
-        self.xbee.set_parameter("BI", bytearray(device_name, "utf-8"))
-        self.xbee.apply_changes()
+        try:
+            self._xbee.set_parameter("BI", bytearray(device_name, "utf-8"))
+            self._xbee.apply_changes()
+        except:
+            raise
 
     def is_connected(self):
         """
@@ -435,7 +477,6 @@ class BLEServiceXBee(BLEService):
         See Also:
             :meth:`.BLEService.is_connected`
         """
-        print(self._connected)
         return self._connected
 
     def _execute_user_connection_callbacks(self, status):
@@ -454,23 +495,20 @@ class BLEServiceXBee(BLEService):
             for callback in self._on_disconnect:
                 callback()
 
+    def set_password(self, new_password):
+        """
+        Override.
 
-if __name__ == '__main__':
-    bleservice = BLEService.get_instance()
+        See Also:
+            :meth:`.BLEService.set_password`
+        """
+        self._xbee.update_bluetooth_password(new_password)
 
-    def connect_callback():
-        print("Connected")
+    def get_type(self):
+        """
+        Override.
 
-    def disconnect_callback():
-        print("Disconnected")
-
-    def received_callback(data):
-        print('Data received: ' + data.decode('utf-8'))
-        bleservice.send_data(data)
-
-
-    bleservice.add_connect_callback(connect_callback)
-    bleservice.add_disconnect_callback(disconnect_callback)
-    bleservice.add_data_received_callback(received_callback)
-
-    bleservice.start_service()
+        See Also:
+            :meth:`.BLEService.get_type`
+        """
+        return 'XBee Interface'

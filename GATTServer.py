@@ -13,9 +13,7 @@ from bluezero import GATT
 import dbus
 
 # Standard modules
-import re
 import threading
-import time
 
 import utils
 
@@ -131,10 +129,10 @@ class TxCharacteristic(localGATT.Characteristic):
             value (dbus.Array): the new value written in the characteristic.
             options (Integer): write options.
         """
-        # New tx value
+        # New tx value.
         self.props[constants.GATT_CHRC_IFACE]['Value'] = value
 
-        # Notify new data through the set callback
+        # Notify new data through the set callback.
         self.PropertiesChanged(decode_bytes(value))
 
 
@@ -153,10 +151,10 @@ class RxCharacteristic(localGATT.Characteristic):
         Callback executed when the indicate property of the characteristic is changed to ``True``.
         """
         if self.props[constants.GATT_CHRC_IFACE]['Notifying']:
-            # Already notifying, nothing to do
+            # Already notifying, nothing to do.
             return
 
-        # Notifications on
+        # Notifications on.
         self.props[constants.GATT_CHRC_IFACE]['Notifying'] = True
 
     def StopNotify(self):
@@ -164,10 +162,10 @@ class RxCharacteristic(localGATT.Characteristic):
         Callback executed when the indicate property of the characteristic is changed to ``False``.
         """
         if not self.props[constants.GATT_CHRC_IFACE]['Notifying']:
-            # Not notifying, nothing to do
+            # Not notifying, nothing to do.
             return
 
-        # Notifications off
+        # Notifications off.
         self.props[constants.GATT_CHRC_IFACE]['Notifying'] = False
 
     def update_characteristic(self, data):
@@ -179,10 +177,10 @@ class RxCharacteristic(localGATT.Characteristic):
         """
         value = encode_bytes(data)
 
-        # New rx value
+        # New rx value.
         self.props[constants.GATT_CHRC_IFACE]['Value'] = value
 
-        # Notifying new value
+        # Notifying new value.
         if self.props[constants.GATT_CHRC_IFACE]['Notifying']:
             self.PropertiesChanged(constants.GATT_CHRC_IFACE, {'Value': value}, [])
         self.props[constants.GATT_CHRC_IFACE]['Value'] = ''
@@ -194,16 +192,16 @@ class GATTServer:
         self.app = localGATT.Application()
         self.srv = localGATT.Service(1, SER_UUID, True)
 
-        # Writeable characteristic creation
+        # Writeable characteristic creation.
         self.tx_char = TxCharacteristic(self.srv)
         self.tx_char.service = self.srv.path
         self.add_tx_data_callback(self.default_tx_callback)
 
-        # Readable characteristic creation
+        # Readable characteristic creation.
         self.rx_char = RxCharacteristic(self.srv)
         self.rx_char.service = self.srv.path
 
-        # Characteristic and service registration
+        # Characteristic and service registration.
         self.app.add_managed_object(self.srv)
         self.app.add_managed_object(self.tx_char)
         self.app.add_managed_object(self.rx_char)
@@ -211,48 +209,49 @@ class GATTServer:
         self.srv_mng = GATT.GattManager(adapter.list_adapters()[0])
         self.srv_mng.register_application(self.app, {})
 
-        # Configure dongle and advertisement
+        # Configure dongle and advertisement.
         self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         self.dongle.alias = advertising_name
-        advert = advertisement.Advertisement(1, 'peripheral')
+        self.advert = advertisement.Advertisement(1, 'peripheral')
 
-        # Start advertisement
-        advert.service_UUIDs = [SER_UUID]
+        # Register advertisement.
+        self.advert.service_UUIDs = [SER_UUID]
         if not self.dongle.powered:
             self.dongle.powered = True
-        ad_manager = advertisement.AdvertisingManager(self.dongle.address)
-        ad_manager.register_advertisement(advert, {})
+        self.ad_manager = advertisement.AdvertisingManager(self.dongle.address)
 
-        # Define service starting thread
-        self.service_thread = threading.Thread(target=self.app.start)
-
-        # Dictionary of devices subscribed by the DBus, associated with the signal they are subscribed to
+        # Dictionary of devices subscribed by the DBus, associated with the signal they are subscribed to.
         self._dbus_subscribed_devices = {}
 
-        # Get DBus object manager and start listening for new interfaces
+        # Get DBus object manager and start listening for new interfaces.
         bluez_proxy = self.bus.get_object('org.bluez', "/")
         self.object_manager = dbus.Interface(bluez_proxy, "org.freedesktop.DBus.ObjectManager")
         self.object_manager.connect_to_signal("InterfacesAdded", self._subscribe_dbus_managed_device)
         self.object_manager.connect_to_signal("InterfacesRemoved", self._unsubscribe_dbus_managed_device)
 
-        # Every device managed by the DBus will listen for the PropertiesChanged signal
+        # Every device managed by the DBus will listen for the PropertiesChanged signal.
         self._subscribe_dbus_managed_objects()
 
-        # Connection callback definition
+        # Connection callback definition.
         self._on_connection_changed = None
 
     def start(self):
         """
         Starts the thread service.
         """
-        self.service_thread.start()
+        # Start advertisement.
+        self.ad_manager.register_advertisement(self.advert, {})
+
+        self.app.start()
 
     def stop(self):
         """
         Stops the thread service.
         """
+        # Stop advertisement.
+        self.ad_manager.unregister_advertisement(self.advert)
+
         self.app.stop()
-        self.service_thread.join()
 
     def default_tx_callback(self, value):
         """
@@ -318,7 +317,7 @@ class GATTServer:
             prop = dbus.Interface(obj_proxy, "org.freedesktop.DBus.Properties")
 
             # Check if any interface within the object is a device,
-            # and if so, check if Connected property is True
+            # and if so, check if Connected property is True.
             for interface in objects[obj_path]:
                 if interface == 'org.bluez.Device1':
                     if prop.Get('org.bluez.Device1', "Connected"):
@@ -382,7 +381,7 @@ class GATTServer:
                         prop.connect_to_signal("PropertiesChanged", self._dbus_connected_changed_callback)
 
                     # To assure that the connection methods are executed even if the interface gets added after
-                    # 'Connected' is changed, skipping the signal
+                    # 'Connected' is changed, skipping the signal.
                     connected = prop.Get('org.bluez.Device1', 'Connected')
                     if connected:
                         self._dbus_connected_changed_callback('org.bluez.Device1', {'Connected': connected})

@@ -18,8 +18,6 @@ import utils
 import os
 
 API_USERNAME = 'apiservice'
-API_PASSWORD = '1234'
-
 
 class BLESecurityManager:
     salt = None
@@ -67,8 +65,8 @@ class BLESecurityManager:
         raise NotAuthenticatedException()
 
     @classmethod
-    def generate_salted_verification_key(cls):
-        cls.salt, cls.verification_key = srp.create_salted_verification_key(API_USERNAME, API_PASSWORD,
+    def generate_salted_verification_key(cls, api_password):
+        cls.salt, cls.verification_key = srp.create_salted_verification_key(API_USERNAME, api_password,
                                                                             hash_alg=srp.SHA256,
                                                                             ng_type=srp.NG_1024, salt_len=4)
 
@@ -106,7 +104,7 @@ class BLESecurityManager:
 
             if server_proof_M2 is None or not cls.verifier.authenticated():
                 # Add error code to payload.
-                payload += SrpError.BAD_PROOF_OF_KEY.code
+                payload = SrpError.BAD_PROOF_OF_KEY.code.to_bytes(1, byteorder='big')
             else:
                 # Generate random nonces.
                 tx_nonce = os.urandom(12)
