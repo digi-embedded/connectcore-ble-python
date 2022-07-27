@@ -1,7 +1,7 @@
-Type=Static
+Type=static
 IP=192.168.10.10
 Netmask=255.255.255.0
 Gateway=192.168.10.1
 DNS=4.4.4.4
 MAC=F7:A4:33:E3:17:AB
-Enabled=False
+Enabled=false
