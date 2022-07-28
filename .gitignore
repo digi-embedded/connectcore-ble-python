@@ -138,3 +138,6 @@ dmypy.json
 
 # Pycharm
 .idea/
+
+# Sphinx doc
+doc/_build
