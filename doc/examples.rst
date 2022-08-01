@@ -11,6 +11,7 @@ purpose and the required setup to launch the application.
 This is the list of available samples:
 
 * :ref:`configureInterfaces`
+* :ref:`echoServer`
 
 
 .. _configureInterfaces:
@@ -29,3 +30,14 @@ Bluetooth Low Energy service.
 You can locate the example in the following path:
 **examples/ConfigureInterfacesSample**
 
+
+.. _echoServer:
+
+Echo Server sample
+``````````````````
+
+This sample Python application shows how to wait for incoming messages from
+the connected BLE device and answer back with the same message.
+
+You can locate the example in the following path:
+**examples/EchoServerSample**
