@@ -101,12 +101,12 @@ Get the source code
 *******************
 
 The ConnectCore Bluetooth Low Energy python library is actively developed on
-GitHub, where the code is `always available <https://github.com/digidotcom/connectcore-ble-python>`_.
+GitHub, where the code is `always available <https://github.com/digi-embedded/connectcore-ble-python>`_.
 You can clone the repository with:
 
 .. code::
 
-  $ git clone git@github.com:digidotcom/connectcore-ble-python.git
+  $ git clone git@github.com:digi-embedded/connectcore-ble-python.git
 
 
 .. _gsgRunApp:

@@ -14,11 +14,11 @@ Reporting a bug
 ---------------
 
 The way to report bugs is to use the
-`GitHub issue tracker <http://github.com/digidotcom/connectcore-ble-python/issues>`_.
+`GitHub issue tracker <http://github.com/digi-embedded/connectcore-ble-python/issues>`_.
 Before reporting a bug, please read the following points:
 
 #. Make sure someone has not already reported it. See the list of
-   `known issues <http://github.com/digidotcom/connectcore-ble-python/issues>`_.
+   `known issues <http://github.com/digi-embedded/connectcore-ble-python/issues>`_.
 #. If it has not been reported yet, create a new issue. Make sure to add enough
    detail so that the bug can be reproduced.
 
@@ -32,14 +32,14 @@ Suggesting a new feature
 ------------------------
 
 #. Make sure someone has not already requested it. See the list of
-   `known issues <http://github.com/digidotcom/connectcore-ble-python/issues>`_.
+   `known issues <http://github.com/digi-embedded/connectcore-ble-python/issues>`_.
 #. Submit your request in the issue tracker.
 
 
 Contributing code
 -----------------
 
-#. Fork the `XBee Python library <http://github.com/digidotcom/connectcore-ble-python>`_
+#. Fork the `XBee Python library <http://github.com/digi-embedded/connectcore-ble-python>`_
    repository (`how to fork a repo
    <https://help.github.com/articles/fork-a-repo/>`_).
 #. Create a branch for your contribution. Use a name that defines the purpose

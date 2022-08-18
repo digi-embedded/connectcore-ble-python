@@ -44,7 +44,7 @@ How to contribute
 -----------------
 
 The contributing guidelines are in the `CONTRIBUTING.rst document
-<https://github.com/digidotcom/connectcore-ble-python/blob/master/CONTRIBUTING.rst>`_.
+<https://github.com/digi-embedded/connectcore-ble-python/blob/master/CONTRIBUTING.rst>`_.
 
 
 License
@@ -52,10 +52,10 @@ License
 
 Copyright 2022, Digi International Inc.
 
-The `MPL 2.0 license <https://github.com/digidotcom/connectcore-ble-python/blob/master/LICENSE.txt>`_
+The `MPL 2.0 license <https://github.com/digi-embedded/connectcore-ble-python/blob/master/LICENSE.txt>`_
 covers the majority of this project with the following exceptions:
 
-* The `ISC license <https://github.com/digidotcom/connectcore-ble-python/blob/master/examples/LICENSE.txt>`_
+* The `ISC license <https://github.com/digi-embedded/connectcore-ble-python/blob/master/examples/LICENSE.txt>`_
   covers the contents of the examples directory.
 
 .. |pypiversion| image:: https://badge.fury.io/py/digi-connectcore-ble.svg

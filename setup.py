@@ -76,7 +76,7 @@ setup(
     ],
     project_urls={
         'Documentation': 'https://xbplib.readthedocs.io',
-        'Source': 'https://github.com/digidotcom/connectcore-ble-python',
-        'Tracker': 'https://github.com/digidotcom/connectcore-ble-python/issues',
+        'Source': 'https://github.com/digi-embedded/connectcore-ble-python',
+        'Tracker': 'https://github.com/digi-embedded/connectcore-ble-python/issues',
     },
 )

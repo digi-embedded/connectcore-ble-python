@@ -15,7 +15,7 @@
 __version__ = '1.0.3'
 __title__ = 'digi-connectcore-ble'
 __description__ = 'Digi ConnectCore Bluetooth Low Energy library'
-__url__ = 'https://github.com/digidotcom/connectcore-ble-python'
+__url__ = 'https://github.com/digi-embedded/connectcore-ble-python'
 __author__ = 'Digi International Inc.'
 __author_email__ = 'tech.support@digi.com'
 __license__ = 'Mozilla Public License 2.0 (MPL 2.0)'
