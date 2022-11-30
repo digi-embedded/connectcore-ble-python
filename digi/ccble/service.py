@@ -36,7 +36,7 @@ from digi.xbee.models.mode import OperatingMode
 from digi.xbee.models.options import XBeeLocalInterface
 from digi.xbee.models.status import ModemStatus, ATCommandStatus
 from digi.xbee.packets.aft import ApiFrameType
-from digi.xbee.packets.base import UnknownXBeePacket
+from digi.xbee.packets.base import UnknownXBeePacket, XBeeAPIPacket
 from digi.xbee.packets.common import ATCommPacket, ATCommResponsePacket
 from digi.xbee.packets.relay import UserDataRelayPacket, UserDataRelayOutputPacket
 
@@ -52,6 +52,7 @@ _ERROR_STOP_BLUETOOTH_SERVICE = "Failed to stop Bluetooth service: %s"
 _WARNING_DATA_DECRYPT = "Could not decrypt received data %s."
 _WARNING_DATA_ENCRYPT = "Could not encrypt data to send %s."
 _WARNING_INVALID_PACKET_RECEIVED = "Invalid packet received: %s"
+_WARNING_SPURIOUS_LOGIN_PACKET_RECEIVED = "Spurious login packet received"
 
 _XBEE_API_FRAME_SRP_LOGIN_REQUEST = 0x2C
 _XBEE_API_FRAME_SRP_LOGIN_ANSWER = 0xAC
@@ -585,11 +586,15 @@ class ConnectCoreBLEServiceNative(ConnectCoreBLEService):
         # If the packet is a Bluetooth Unlock API Frame, process the SRP request and return.
         # This process is executed before SRP encryption is set, so do not decode data here and
         # execute only if user is not authenticated yet.
-        if (len(data) > 3 and data[3] == _XBEE_API_FRAME_SRP_LOGIN_REQUEST and
-                not self._security_manager.is_authenticated()):
-            srp_response = self._security_manager.process_srp_request(data)
-            self.send_data(srp_response)
-            return
+        if (len(data) > 3 and data[3] == _XBEE_API_FRAME_SRP_LOGIN_REQUEST):
+            try:
+                XBeeAPIPacket._check_api_packet(data)
+                self._security_manager.deauthenticate()
+                srp_response = self._security_manager.process_srp_request(data)
+                self.send_data(srp_response)
+                return
+            except InvalidPacketException:
+                self._log.warning(_WARNING_SPURIOUS_LOGIN_PACKET_RECEIVED)
         # Decrypt the data if possible.
         try:
             decrypted_data = self._security_manager.decrypt_data(data)

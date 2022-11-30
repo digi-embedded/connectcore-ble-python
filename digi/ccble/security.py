@@ -176,6 +176,12 @@ class SRPSecurityManager:
         """
         return self._authenticated
 
+    def deauthenticate(self):
+        """
+        Deauthenticate the security manager.
+        """
+        self._authenticated = False
+
     @staticmethod
     def new_cipher(session_key, nonce):
         """
