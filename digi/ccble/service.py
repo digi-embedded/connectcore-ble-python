@@ -12,6 +12,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import glob
 import logging
 import threading
 
@@ -22,6 +23,7 @@ from bluezero.adapter import Adapter, AdapterError
 from dbus.exceptions import DBusException
 
 from serial.serialutil import SerialException
+from serial.tools.list_ports_linux import SysFS
 from serial.tools import list_ports
 
 from digi.ccble import utils
@@ -159,6 +161,14 @@ def get_xbee_device():
     """
     # List serial ports.
     serial_ports = list(list_ports.comports())
+    # Add custom ports.
+    devices = ['/dev/ttyXBee']
+    devices.extend(glob.glob('/dev/ttymca*'))
+    devices.extend(glob.glob('/dev/ttymxc*'))
+    devices.extend(glob.glob('/dev/ttyLP*'))
+    serial_ports.extend(info
+                        for info in [SysFS(d) for d in devices]
+                        if info.subsystem != "platform")
     # Iterate all ports found.
     for port in serial_ports:
         # Check whether port matches supported prefixes.
