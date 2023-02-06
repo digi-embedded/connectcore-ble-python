@@ -253,9 +253,9 @@ class ConnectCoreBLEService(ABC):
         """
         # Check if an instance of same type already exists.
         if (cls.__BLE_service_instance is not None
-                and ((cls.__BLE_service_instance.get_type() == BLEInterface.ADAPTER
+                and ((cls.__BLE_service_instance.get_interface_type() == BLEInterface.ADAPTER
                       and ble_interface in (BLEInterface.ANY, BLEInterface.ADAPTER))
-                     or (cls.__BLE_service_instance.get_type() == BLEInterface.XBEE3
+                     or (cls.__BLE_service_instance.get_interface_type() == BLEInterface.XBEE3
                          and ble_interface in (BLEInterface.ANY, BLEInterface.XBEE3)))):
             return cls.__BLE_service_instance
         # Initialize variables.
