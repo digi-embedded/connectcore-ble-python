@@ -35,9 +35,9 @@ Documentation
 
 XBee Python library has user guide and API reference documentation hosted on
 Read the Docs. You can find the latest, most up to date, documentation at
-`latest docs <https://xbplib.readthedocs.io/en/latest/>`_. To see only those
+`latest docs <https://digi-connectcore-ble.readthedocs.io/en/latest/>`_. To see only those
 features which have been released, check out the
-`stable docs <https://xbplib.readthedocs.io/en/stable/>`_.
+`stable docs <https://digi-connectcore-ble.readthedocs.io/en/stable/>`_.
 
 
 How to contribute
@@ -50,7 +50,7 @@ The contributing guidelines are in the `CONTRIBUTING.rst document
 License
 -------
 
-Copyright 2022, Digi International Inc.
+Copyright 2022,2023, Digi International Inc.
 
 The `MPL 2.0 license <https://github.com/digi-embedded/connectcore-ble-python/blob/master/LICENSE.txt>`_
 covers the majority of this project with the following exceptions:

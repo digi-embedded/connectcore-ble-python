@@ -75,7 +75,7 @@ setup(
         'Operating System :: OS Independent',
     ],
     project_urls={
-        'Documentation': 'https://xbplib.readthedocs.io',
+        'Documentation': 'https://digi-connectcore-ble.readthedocs.io/en/latest/',
         'Source': 'https://github.com/digi-embedded/connectcore-ble-python',
         'Tracker': 'https://github.com/digi-embedded/connectcore-ble-python/issues',
     },
