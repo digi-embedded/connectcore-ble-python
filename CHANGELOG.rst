@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v1.0.0 - 08/16/2022
+v1.0.4 - 05/08/2023
 -------------------
 
 Initial release of ConnectCore Bluetooth Low Energy Python library. The main
