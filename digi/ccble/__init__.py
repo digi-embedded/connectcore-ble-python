@@ -12,7 +12,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 __title__ = 'digi-connectcore-ble'
 __description__ = 'Digi ConnectCore Bluetooth Low Energy library'
 __url__ = 'https://github.com/digi-embedded/connectcore-ble-python'

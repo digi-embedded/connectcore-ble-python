@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.0.5 - 05/09/2023
+-------------------
+
+* Fix setup by adding 'wheel' package requirement.
+
 v1.0.4 - 05/08/2023
 -------------------
 
