@@ -4,8 +4,8 @@ Digi ConnectCore Bluetooth Low Energy Python library |pypiversion| |pythonversio
 This project contains the source code of the ConnectCore Bluetooth Low Energy
 Python library, an easy-to-use API developed in Python that allows your Digi
 International's `ConnectCore <https://www.digi.com/products/browse/connectcore>`_
-modules to interact with mobile applications using the `Digi XBee Mobile SDK
-<https://www.digi.com/resources/documentation/digidocs/PDFs/90002361.pdf>`_
+modules to interact with mobile applications using the `Digi IoT Mobile SDK
+<https://www.digi.com/resources/documentation/digidocs/90002568>`_
 through Bluetooth Low Energy.
 
 This source has been contributed by Digi International.
@@ -33,8 +33,9 @@ following command::
 Documentation
 -------------
 
-XBee Python library has user guide and API reference documentation hosted on
-Read the Docs. You can find the latest, most up to date, documentation at
+ConnectCore Bluetooth Low Energy Python library has user guide and API
+reference documentation hosted on Read the Docs. You can find the latest,
+most up to date, documentation at
 `latest docs <https://digi-connectcore-ble.readthedocs.io/en/latest/>`_. To see only those
 features which have been released, check out the
 `stable docs <https://digi-connectcore-ble.readthedocs.io/en/stable/>`_.
@@ -50,7 +51,7 @@ The contributing guidelines are in the `CONTRIBUTING.rst document
 License
 -------
 
-Copyright 2022,2023, Digi International Inc.
+Copyright 2022, 2023, Digi International Inc.
 
 The `MPL 2.0 license <https://github.com/digi-embedded/connectcore-ble-python/blob/master/LICENSE.txt>`_
 covers the majority of this project with the following exceptions:

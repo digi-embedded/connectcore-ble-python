@@ -15,8 +15,8 @@
 
     * A ConnectCore device with Bluetooth Low Energy support. This support
       can be either native or through a BLE XBee 3 capable device.
-    * A mobile phone with the InterfacesConfigurationSample mobile application
-      from the Digi XBee Mobile SDK.
+    * A mobile phone with the BLENetworkConfigurationSample mobile application
+      from the Digi IoT Mobile SDK.
 
 
   Example setup
@@ -26,7 +26,7 @@
     2) Ensure that Bluetooth is enabled in the device or the XBee 3 BLE device
        is correctly attached.
 
-    3) Ensure that the InterfacesConfigurationSample application is correctly
+    3) Ensure that the BLENetworkConfigurationSample application is correctly
        installed in the mobile phone.
 
 
@@ -39,7 +39,7 @@
     Advertisement registered
     >
 
-  Start the InterfacesConfigurationSample mobile phone application. When the
+  Start the BLENetworkConfigurationSample mobile phone application. When the
   application starts, follow these steps:
 
     1) Select the device from the list. Enter the password (1234) when asked.

@@ -1,4 +1,4 @@
-﻿Copyright 2022, Digi International Inc.
+﻿Copyright 2022, 2023, Digi International Inc.
 
 Note that this license pertains to the contents of this directory
 (examples) and its subdirectories ONLY. The top-level LICENSE.txt

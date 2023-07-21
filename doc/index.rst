@@ -14,15 +14,15 @@ Release v\ |version|. (:ref:`Installation <gsgInstall>`)
 
 The ConnectCore Bluetooth Low Energy Python library (from now ConnectCore BLE
 Python library) allows your Digi International's `ConnectCore <https://www.digi.com/products/browse/connectcore>`_
-modules to interact with mobile applications using the `Digi XBee Mobile SDK
-<https://www.digi.com/resources/documentation/digidocs/PDFs/90002361.pdf>`_
+modules to interact with mobile applications using the `Digi IoT Mobile SDK
+<https://www.digi.com/resources/documentation/digidocs/90002568>`_
 through Bluetooth Low Energy.
 
 The library makes use of the native Bluetooth support of the ConnectCore
 devices to create a GATT server that emulates the one existing in XBee 3
 devices. This GATT server exposes an RX and TX characteristic to send and
 receive data from the connected devices. This is specially useful when
-developing mobile applications using the 'Digi XBee Mobile SDK'. If native
+developing mobile applications using the 'Digi IoT Mobile SDK'. If native
 Bluetooth support is not available in the ConnectCore device, the library
 can search for a compatible XBee 3 module attached to the ConnectCore device
 and use its Bluetooth Low Energy support as the communication interface.
@@ -30,7 +30,7 @@ and use its Bluetooth Low Energy support as the communication interface.
 The ConnectCore BLE Python library includes the following features:
 
 * Support to communicate ConnectCore devices and mobile phone applications
-  using Bluetooth Low Energy and the 'Digi XBee Mobile SDK'.
+  using Bluetooth Low Energy and the 'Digi IoT Mobile SDK'.
 * Allow external devices to connect to the ConnectCore module using the native
   Bluetooth Low Energy support.
 * Allow external devices to connect to the ConnectCore module using an XBee 3
@@ -70,7 +70,8 @@ If you prefer to install them manually, these are the required modules:
 Contents
 ========
 
-The XBee Python library documentation is split in different sections:
+The ConnectCore BLE Python library documentation is split in different
+sections:
 
 * :ref:`indexGSG`
 * :ref:`indexUserDoc`
@@ -202,7 +203,7 @@ Indices and tables
 License
 =======
 
-Copyright 2022, Digi International Inc.
+Copyright 2022, 2023, Digi International Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this

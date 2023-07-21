@@ -117,8 +117,8 @@ Run your first ConnectCore Bluetooth Low Energy application
 The ConnectCore BLE Python application demonstrated in the guide waits for
 incoming data from the connected device and prints it in the console.
 
-For this guide, you will need a mobile phone with the `RelayConsoleSample`
-application from the `Digi XBee Mobile SDK` already installed to test.
+For this guide, you will need a mobile phone with the `Digi XBee Mobile`
+application already installed to test.
 
 Follow these steps to register the data callback and start the service:
 
@@ -155,18 +155,24 @@ Follow these steps to register the data callback and start the service:
 
         > cc_ble_service.start()
 
-Follow these steps to test the above code with the `RelayConsoleSample` mobile
+Follow these steps to test the above code with the `Digi XBee Mobile`
 application:
 
-#. Open the RelayConsoleSample application.
+#. Open the Digi XBee Mobile application.
 
 #. Select the device from the list. Enter the password (1234) when asked.
 
-#. In the Relay Frames console, click "SEND USER DATA RELAY" button.
+#. In the device page, open the options menu located at the top-right corner
+   of the application and select the `Relay Console` option.
 
-#. Set the 'Destination interface' to 'BLUETOOTH' in the new window.
+#. In the Relay Console, click the `+` button of the `Send frames` section.
 
-#. Set 'Hello World' as the data to be sent and click 'SEND' button.
+#. Set the 'XBee interface' to 'BLUETOOTH' in the `Add new frame` popup.
+
+#. Set 'Hello World' as the `Data` to be sent and click 'Add' button.
+
+#. Now, select the frame that you have just added from the `Send frames`
+   list and click `Send selected frame`. 
 
 #. The data should be received by the service and printed int the console:
 

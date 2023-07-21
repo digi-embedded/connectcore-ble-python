@@ -1,17 +1,14 @@
-ConnectCore Bluetooth Low Energy Library User Guide
-===================================================
+ConnectCore Bluetooth Low Energy Python Library User Guide
+==========================================================
 
 The ConnectCore Bluetooth Low Energy Python library provides the ability to
 communicate your Digi International's `ConnectCore <https://www.digi.com/products/browse/connectcore>`_
-modules with mobile applications using the `Digi XBee Mobile SDK
-<https://www.digi.com/resources/documentation/digidocs/PDFs/90002361.pdf>`_.
+modules with mobile applications using the `Digi IoT Mobile SDK
+<https://www.digi.com/resources/documentation/digidocs/90002568>`_.
 
 For this purpose, a local GATT server is created using the native Bluetooth
-support of the device. This GATT server emulates the one included in XBee 3
-modules, which includes an RX and TX characteristic to communicate with the
-connected device. This is really useful when developing mobile applications
-using the 'Digi XBee Mobile SDK', as the same communication protocol and
-library is used.
+support of the device. This GATT server generates a couple of characteristics,
+Rx and Tx, to communicate with the connected device.
 
 .. note::
    If native Bluetooth support is not available in the ConnectCore device, the
@@ -63,9 +60,9 @@ to generate a unique instance based on the preferred BLE interface:
 
 The available Bluetooth Low Energy interfaces are the following:
 
-* **``BLEInterface.BLE_NATIVE``**: Native Bluetooth adapter.
-* **``BLEInterface.BLE_XBEE3``**: XBee 3 BLE module.
-* **``BLEInterface.BLE_XBEE3_ANY``**: Native Bluetooth adapter, if available,
+* **``BLEInterface.ADAPTER``**: Built-in Bluetooth device adapter.
+* **``BLEInterface.XBEE3``**: XBee 3 BLE module.
+* **``BLEInterface.ANY``**: Built-in Bluetooth device adapter, if available,
   otherwise XBee 3. This is the default option.
 
 **Instantiate the ConnectCoreBLEService service**
@@ -204,7 +201,7 @@ To be notified on these events, register the proper callback in the service:
   # Device disconnected callback.
   def _disconnect_callback():
     """
-    Callback to be notified when a new connection is established.
+    Callback to be notified when a device disconnects.
     """
     print("Device disconnected")
 
@@ -260,7 +257,7 @@ actions:
   # Receive data callback.
   def _data_received_callback(data):
     """
-    Callback to be notified when a new connection is established.
+    Callback to be notified when data is received.
     """
     print("Data received: %s" % data.decode(encoding="utf-8"))
 
@@ -272,7 +269,7 @@ actions:
   [...]
 
   # Remove data received callback.
-  service.remove_connect_callback(_data_received_callback)
+  service.remove_data_received_callback(_data_received_callback)
 
 
 .. _serviceSendData:
@@ -366,7 +363,7 @@ method of the service:
       print("%s" % str(exc))
 
 
-The previous method may fail for the following reasons:
+The previous methods may fail for the following reasons:
 
 * There is error reading the advertising name, throwing a
   ``ConnectCoreBLEException``.

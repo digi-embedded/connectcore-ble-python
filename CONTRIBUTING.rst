@@ -39,7 +39,8 @@ Suggesting a new feature
 Contributing code
 -----------------
 
-#. Fork the `XBee Python library <http://github.com/digi-embedded/connectcore-ble-python>`_
+#. Fork the `ConnectCore Bluetooth Low Energy Python library
+   <http://github.com/digi-embedded/connectcore-ble-python>`_
    repository (`how to fork a repo
    <https://help.github.com/articles/fork-a-repo/>`_).
 #. Create a branch for your contribution. Use a name that defines the purpose

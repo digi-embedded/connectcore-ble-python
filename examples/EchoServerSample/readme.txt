@@ -10,8 +10,7 @@
 
     * A ConnectCore device with Bluetooth Low Energy support. This support
       can be either native or through an BLE XBee 3 capable device.
-    * A mobile phone with the RelayConsoleSample mobile application from the
-      `Digi XBee Mobile SDK`.
+    * A mobile phone with the `Digi XBee Mobile` app installed.
 
 
   Example setup
@@ -37,19 +36,24 @@
   At this point, the application has started the service and the advertising
   process. It is now waiting for incoming connections.
 
-  Start the 'XBee Realy Console Sample' mobile phone application and follow
-  these steps:
+  Start the 'Digi XBee Mobile' application and follow these steps:
 
     1) Select the device from the list. Enter the password (1234) when asked.
 
-    2) In the Relay Frames console, click "SEND USER DATA RELAY" button.
+    2) In the device page open the options menu located at the top-right corner
+       of the application and select the `Relay Console` option.
 
-    3) Set the 'Destination interface' to 'BLUETOOTH' in the new window.
+    3) In the Relay Console, click the `+` button of the `Send frames` section.
 
-    6) Set 'Hello World' as the data to be sent and click 'SEND' button.
+    3) Set the 'XBee interface' to 'BLUETOOTH' in the `Add new frame` popup.
 
-    7) The data should be received by the service and sent back to the mobile
-       application. Verify that a new entry appears in the 'Received User Data
-       Relay messages' list with this content:
+    6) Set 'Hello World' as the `Data` to be sent and click 'Add' button.
 
-       [Bluetooth Low Energy] Hello World
+    7) Now, select the frame that you have just added from the `Send frames`
+       list and click `Send selected frame`. 
+
+    8) The data should be received by the service and sent back to the mobile
+       application. Verify that a new entry appears in the 'Frames log' list
+       with this content:
+
+       Hello World
