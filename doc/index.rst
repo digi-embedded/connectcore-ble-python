@@ -77,7 +77,7 @@ sections:
 * :ref:`indexUserDoc`
 * :ref:`indexExamples`
 * :ref:`indexFAQ`
-* :ref:`indexChangeLog`
+* :ref:`indexReleaseNotes`
 * :ref:`indexAPI`
 
 
@@ -125,12 +125,12 @@ ConnectCore BLE Python library in the FAQ section.
 * :doc:`faq`
 
 
-.. _indexChangeLog:
+.. _indexReleaseNotes:
 
-Changelog
-----------
+Release notes
+-------------
 
-* :doc:`changelog`
+* :ref:`Latest release notes <../release_notes.txt>`
 
 
 .. _indexAPI:

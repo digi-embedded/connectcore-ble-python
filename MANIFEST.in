@@ -2,7 +2,7 @@
 recursive-include examples *
 
 # Misc
-include CHANGELOG.rst
+include release_notes.txt
 include LICENSE.txt
 include README.rst
 include requirements.txt

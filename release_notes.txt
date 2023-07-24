@@ -1,0 +1,78 @@
+              Digi ConnectCore Bluetooth Low Energy Python Library
+                              digi-connectcore-ble
+
+                         Release Notes (PN 93001379_A)
+                                  Build 1.0.6
+                                 24 July, 2023
+ 
+                    Copyright 2023, Digi International Inc.
+                              http://www.digi.com
+ 
+ Introduction
+-------------------------------------------------------------------------------
+
+ This document provides the latest release information for the Digi ConnectCore
+ Bluetooth Low Energy Python Library, an easy-to-use API developed in Python
+ that allows your Digi International's ConnectCore modules to interact with
+ mobile applications using the 'Digi IoT Mobile SDK' through Bluetooth Low
+ Energy.
+ 
+ Digi ConnectCore Bluetooth Low Energy Python Library v1.0.6, July 2023
+-------------------------------------------------------------------------------
+ 1. Supported Hardware:
+      * Digi ConnectCore devices.
+
+ 2. Changes with respect to previous version:
+      * Adapt documentation to refer to the new 'Digi IoT Mobile SDK'.
+      * Update some little documentation issues.
+      * Update requirements to avoid installing 'dbus-python' and 'PyGObject'
+        in Windows.
+      * Replace 'CHANGELOG.rst' with 'release_notes.txt'.
+
+3. Known Issues and Limitations:
+      * N/A
+
+
+ Digi ConnectCore Bluetooth Low Energy Python Library v1.0.5, May 2023
+-------------------------------------------------------------------------------
+ 1. Supported Hardware:
+      * Digi ConnectCore devices.
+
+ 2. Changes with respect to previous version:
+      * Fix setup by adding 'wheel' package requirement.
+
+ 3. Known Issues and Limitations:
+      * N/A
+
+
+ Digi ConnectCore Bluetooth Low Energy Python Library v1.0.4, May 2023
+-------------------------------------------------------------------------------
+ 1. Supported Hardware:
+      * Digi ConnectCore devices.
+
+ 2. Changes with respect to previous version:
+      * Initial release of ConnectCore Bluetooth Low Energy Python library. The
+        main features of the library include:
+        * Support to communicate ConnectCore devices and mobile phone
+          applications using Bluetooth Low Energy and the 'Digi XBee Mobile
+          SDK'.
+        * Allow external devices to connect to the ConnectCore module using the
+          native Bluetooth Low Energy support.
+        * Allow external devices to connect to the ConnectCore module using an
+          XBee 3 device attached to the ConnectCore module.
+        * Support for SRP authentication to encrypt/decrypt Bluetooth Low
+          Energy messages between the ConnectCore module and the connected
+          device.
+
+      * The API calls allow to:
+        * Start/stop Bluetooth Low Energy service.
+        * Update Bluetooth Low Energy service SRP authentication password.
+        * Update Bluetooth Low Energy service advertising name.
+        * Register for device connect events.
+        * Register for device disconnect events.
+        * Register for data received events.
+        * Send data to connected device.
+
+
+ 3. Known Issues and Limitations:
+      * N/A
