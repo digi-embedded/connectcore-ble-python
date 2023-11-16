@@ -779,6 +779,9 @@ class BLEServiceXBee(ConnectCoreBLEService):
         """
         try:
             self._xbee.send_bluetooth_data(data)
+            # This sleep is required to avoid phone application to saturate if multiple packets need
+            # to be sent in a row.
+            time.sleep(0.2)
         except XBeeException as exc:
             self._log.error(_ERROR_SEND_DATA, str(exc))
             raise ConnectCoreBLEException(_ERROR_SEND_DATA % str(exc)) from exc
