@@ -26,6 +26,7 @@ CHAR_TX_UUID = "7DDDCA00-3E05-4651-9254-44074792C590"
 PERIPHERAL_NAME = "CONNECTCORE_{}"
 SERVICE_ID = 1
 SERVICE_UUID = "53DA53B9-0447-425A-B9EA-9837505EB59A"
+DEFAULT_MTU = 27 - 3
 
 
 class ConnectCoreBLEPeripheral(Peripheral):
@@ -60,6 +61,7 @@ class ConnectCoreBLEPeripheral(Peripheral):
         self._connected = False
         self._data_received_callbacks = []
         self._connection_changed_callbacks = []
+        self._mtu = DEFAULT_MTU
 
         # Create UART service.
         self.add_service(srv_id=SERVICE_ID, uuid=SERVICE_UUID, primary=True)
@@ -97,6 +99,7 @@ class ConnectCoreBLEPeripheral(Peripheral):
             _options (Dict): options used to write the data.
         """
         self._log.debug("Data written: %s", utils.hex_to_string(value))
+        self._mtu = max(len(value), self._mtu)
         # Notify callbacks if any.
         for callback in self._data_received_callbacks:
             callback(value)
@@ -184,8 +187,15 @@ class ConnectCoreBLEPeripheral(Peripheral):
             DBusException: if there is any error writing in the RX characteristic.
         """
         if self._rx_characteristic is not None:
-            self._rx_characteristic.set_value(data)
-            self._log.debug("Sent data: %s", utils.hex_to_string(data))
+            sent_bytes = 0
+            # Slice the data to send.
+            while sent_bytes < len(data):
+                # There is no way to retrieve the negotiated MTU in the connection. Start with a
+                # conservative value and set it to the maximum length of all received data.
+                bytes_to_send = min(len(data), self._mtu)
+                self._rx_characteristic.set_value(data[sent_bytes:sent_bytes + bytes_to_send])
+                sent_bytes += bytes_to_send
+                self._log.debug("Sent data: %s", utils.hex_to_string(data[sent_bytes:sent_bytes + bytes_to_send]))
 
     def get_advertising_name(self):
         """

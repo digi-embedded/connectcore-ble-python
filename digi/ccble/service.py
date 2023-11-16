@@ -15,6 +15,7 @@
 import glob
 import logging
 import threading
+import time
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -53,8 +54,7 @@ _ERROR_STOP_BLUETOOTH_SERVICE = "Failed to stop Bluetooth service: %s"
 
 _WARNING_DATA_DECRYPT = "Could not decrypt received data %s."
 _WARNING_DATA_ENCRYPT = "Could not encrypt data to send %s."
-_WARNING_INVALID_PACKET_RECEIVED = "Invalid packet received: %s"
-_WARNING_SPURIOUS_LOGIN_PACKET_RECEIVED = "Spurious login packet received"
+_WARNING_INVALID_PACKET_RECEIVED = "Invalid or incomplete packet received"
 
 _XBEE_API_FRAME_SRP_LOGIN_REQUEST = 0x2C
 _XBEE_API_FRAME_SRP_LOGIN_ANSWER = 0xAC
@@ -471,6 +471,8 @@ class ConnectCoreBLEServiceNative(ConnectCoreBLEService):
         self._security_manager = SRPSecurityManager()
         # Initialize SRP authentication.
         self._security_manager.generate_salted_verification_key(self._DEFAULT_AUTHENTICATION_KEY)
+        # Initialize previous received data array.
+        self._prev_data = bytearray(0)
 
     def start(self):
         """
@@ -593,44 +595,46 @@ class ConnectCoreBLEServiceNative(ConnectCoreBLEService):
         Args:
             data (Bytearray): the data received from the device connected to the peripheral.
         """
-        # If the packet is a Bluetooth Unlock API Frame, process the SRP request and return.
-        # This process is executed before SRP encryption is set, so do not decode data here and
-        # execute only if user is not authenticated yet.
-        if (len(data) > 3 and data[3] == _XBEE_API_FRAME_SRP_LOGIN_REQUEST):
-            try:
-                XBeeAPIPacket._check_api_packet(data)
-                self._security_manager.deauthenticate()
-                srp_response = self._security_manager.process_srp_request(data)
-                self.send_data(srp_response)
-                return
-            except InvalidPacketException:
-                self._log.warning(_WARNING_SPURIOUS_LOGIN_PACKET_RECEIVED)
+        available_data = self._prev_data
         # Decrypt the data if possible.
+        if self._security_manager.is_authenticated():
+            try:
+                available_data += self._security_manager.decrypt_data(data)
+            except ConnectCoreBLEException as exc:
+                self._log.warning(_WARNING_DATA_DECRYPT, str(exc))
+                self._prev_data = available_data + data
+                return
+        else:
+            available_data += data
+        # Check if data is a valid XBee frame.
         try:
-            decrypted_data = self._security_manager.decrypt_data(data)
-        except ConnectCoreBLEException as exc:
-            self._log.warning(_WARNING_DATA_DECRYPT, str(exc))
+            XBeeAPIPacket._check_api_packet(available_data)
+            self._prev_data = bytearray(0)
+        except InvalidPacketException:
+            self._log.warning(_WARNING_INVALID_PACKET_RECEIVED)
+            self._prev_data = available_data
+            return
+        # If the packet is a Bluetooth Unlock API Frame, process the SRP request and return.
+        if len(available_data) > 3 and available_data[3] == _XBEE_API_FRAME_SRP_LOGIN_REQUEST:
+            srp_response = self._security_manager.process_srp_request(available_data)
+            self.send_data(srp_response)
             return
         # Check if it is an AT Command request to obtain device information.
-        if len(decrypted_data) > 3 and decrypted_data[3] == ApiFrameType.AT_COMMAND.code:
+        if len(available_data) > 3 and available_data[3] == ApiFrameType.AT_COMMAND.code:
             # Get the AT Command request answer.
-            answer_packet = self._process_at_command_request(decrypted_data)
+            answer_packet = self._process_at_command_request(available_data)
             # If the answer is valid, send it to the device, otherwise the given packet was invalid.
             if answer_packet is not None:
                 self.send_data(answer_packet.output())
             return
         # Check if it is a User Data Relay Request frame.
-        if (len(decrypted_data) > 3
-                and decrypted_data[3] == ApiFrameType.USER_DATA_RELAY_REQUEST.code):
+        if (len(available_data) > 3
+                and available_data[3] == ApiFrameType.USER_DATA_RELAY_REQUEST.code):
             # Try to create an XBee user data relay frame with the given data.
-            try:
-                packet = UserDataRelayPacket.create_packet(decrypted_data, OperatingMode.API_MODE)
-                # Notify subscribed service callbacks about new data received.
-                for callback in self._on_data_received:
-                    callback(packet.data)
-            except InvalidPacketException as exc:
-                self._log.warning(_WARNING_INVALID_PACKET_RECEIVED, str(exc))
-                return
+            packet = UserDataRelayPacket.create_packet(available_data, OperatingMode.API_MODE)
+            # Notify subscribed service callbacks about new data received.
+            for callback in self._on_data_received:
+                callback(packet.data)
 
     def _connection_changed(self, status):
         """
@@ -641,6 +645,8 @@ class ConnectCoreBLEServiceNative(ConnectCoreBLEService):
         """
         # Notify corresponding registered service callbacks.
         if status:
+            self._security_manager.deauthenticate()
+            self._prev_data = bytearray(0)
             for callback in self._on_connect:
                 callback()
         else:
