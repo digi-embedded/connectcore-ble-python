@@ -57,10 +57,10 @@ installed:
 If you prefer to install them manually, these are the required modules:
 
 * **PySerial 3**. Install it with pip (``pip install pyserial``)
-* **XBee Python**. Install it with pip (``pip install xbee-python``).
-* **D-Bus Python**. Install it with pip (``pip install dbus-python``).
+* **XBee Python**. Install it with pip (``pip install digi-xbee``).
+* **D-Bus Python**. Install it with pip (``pip install dbus-python``). Linux only.
 * **Pycairo**. Install it with pip (``pip install pycairo``).
-* **PyGobject**. Install it with pip (``pip install PyGObject``).
+* **PyGobject**. Install it with pip (``pip install PyGObject``). Linux only.
 * **Bluezero**. Install it with pip (``pip install bluezero``).
 * **Six**  Install it with pip (``pip install six``).
 * **PyCryptodome**  Install it with pip (``pip install pycryptodome``).
@@ -203,7 +203,7 @@ Indices and tables
 License
 =======
 
-Copyright 2022, 2023, Digi International Inc.
+Copyright 2022-2024, Digi International Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
