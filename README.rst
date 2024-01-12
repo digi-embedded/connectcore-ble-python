@@ -1,4 +1,4 @@
-Digi ConnectCore Bluetooth Low Energy Python library |pypiversion| |pythonversion|
+Digi ConnectCore Bluetooth Low Energy Python library
 ==================================================================================
 
 This project contains the source code of the ConnectCore Bluetooth Low Energy
