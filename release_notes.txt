@@ -2,10 +2,10 @@
                               digi-connectcore-ble
 
                          Release Notes (PN 93001379_A)
-                                  Build 1.0.6
-                                 24 July, 2023
+                                  Build 1.0.7
+                               30 January, 2024
  
-                    Copyright 2023, Digi International Inc.
+                  Copyright 2023-2024, Digi International Inc.
                               http://www.digi.com
  
  Introduction
@@ -17,6 +17,20 @@
  mobile applications using the 'Digi IoT Mobile SDK' through Bluetooth Low
  Energy.
  
+  Digi ConnectCore Bluetooth Low Energy Python Library v1.0.7, January 2024
+-------------------------------------------------------------------------------
+ 1. Supported Hardware:
+      * Digi ConnectCore devices.
+
+ 2. Changes with respect to previous version:
+      * Fix documentation build.
+      * Fix installation instructions.
+      * Fix communication with low negotiated MTU.
+
+ 3. Known Issues and Limitations:
+      * N/A
+
+
  Digi ConnectCore Bluetooth Low Energy Python Library v1.0.6, July 2023
 -------------------------------------------------------------------------------
  1. Supported Hardware:

@@ -1,4 +1,4 @@
-# Copyright 2022, 2023, Digi International Inc.
+# Copyright 2022-2024, Digi International Inc.
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,7 +12,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-__version__ = '1.0.6'
+__version__ = '1.0.7'
 __title__ = 'digi-connectcore-ble'
 __description__ = 'Digi ConnectCore Bluetooth Low Energy library'
 __url__ = 'https://github.com/digi-embedded/connectcore-ble-python'
